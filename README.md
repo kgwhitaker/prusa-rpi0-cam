@@ -34,6 +34,7 @@ This worked, but it was pulling 98% CPU on the RPi constantly.  Cutting down on 
 - Install `vim` `sudo apt install vim`
 - set `etc/hostname` to `walleee-tv.home.arpa`
 - Added my favorite alias: `ll, la, ..`
+- Install `git`
 
 ## Image Capture for Prusa Connect
 
