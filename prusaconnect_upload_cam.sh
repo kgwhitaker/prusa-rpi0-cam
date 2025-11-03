@@ -15,8 +15,8 @@ if [ -z "$SECRETS_FILE" ]; then
     echo "FINGERPRINT=<a UUID unique to this camera instance>"
     echo "CAMERA_TOKEN=<token assigned by Prusa Connect>"
     echo "PRINTER_HOSTNAME=<hostname or IP of your printer>"
-    echo "PRINTER_USERNAME=<your PrusaLink user name (not your PrusaConnect user e.g. 'maker')"
-    echo "PRINTER_PASSWORD=<your PrusaLink password (again, not PrusaConnect)"
+    echo "PRINTER_USERNAME=<your PrusaLink user name (NOT your PrusaConnect user e.g. 'maker')"
+    echo "PRINTER_PASSWORD=<your PrusaLink password (again, NOT PrusaConnect)"
     exit 1
 fi
 
@@ -44,7 +44,7 @@ while true; do
     # Check to see if the printer is printing...
     PRINT_STATUS=$(curl -s --digest -u $PRINTER_USERNAME:$PRINTER_PASSWORD "$PRINTER_HOSTNAME/api/v1/status" | jq -r '.printer.state')
     if [ $? -ne 0 ]; then
-        echo "*** ERROR getting printer status.  Will retry in ${LONG_DELAY_SECONDS}s..."
+        echo  $(date +"%Y-%m-%d %H:%M:%S") "*** ERROR getting printer status.  Will retry in ${LONG_DELAY_SECONDS}s..." >&2 
         DELAY=$LONG_DELAY_SECONDS
     else 
         # Upload a still image if we're printing.
@@ -68,15 +68,14 @@ while true; do
                 # Reset delay to the normal value
                 DELAY=$DELAY_SECONDS
             else
-                echo "Error capturing image.  Will retry in ${LONG_DELAY_SECONDS}s..."
+                echo  $(date +"%Y-%m-%d %H:%M:%S") "*** ERROR capturing image.  Will retry in ${LONG_DELAY_SECONDS}s..." >&2 
                 # Set delay to the longer value
                 DELAY=$LONG_DELAY_SECONDS
             fi
         else 
-            echo "Printer is not printing."
+            echo $(date +"%Y-%m-%d %H:%M:%S") "Printer is not printing."
         fi
     fi
     
-    echo "Delay: $DELAY"
     sleep "$DELAY"
 done
