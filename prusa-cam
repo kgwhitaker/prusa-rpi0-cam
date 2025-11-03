@@ -54,19 +54,26 @@ while true; do
             rpicam-jpeg -q 50 --width 800 --height 600 -t 1 -o /tmp/3d_still.jpg
             # If no error, upload it.
             if [ $? -eq 0 ]; then
+            
                 # Upload the image to the HTTP URL using curl
-
-                curl -k -X PUT "$HTTP_URL" \
+                HTTP_STATUS=$(curl -k -X PUT "$HTTP_URL" \
                     -H "accept: */*" \
                     -H "content-type: image/jpg" \
                     -H "fingerprint: $FINGERPRINT" \
                     -H "token: $CAMERA_TOKEN" \
                     --data-binary "@/tmp/3d_still.jpg" \
                     --no-progress-meter \
-                    --compressed
+                    --compressed \
+                    -w '%{http_code}\n' \
+                    -o /dev/null)
 
-                # Reset delay to the normal value
-                DELAY=$DELAY_SECONDS
+                if [ $? -ne 0 ] || [ $HTTP_STATUS -lt 200 ] || [ $HTTP_STATUS -ge 300 ]; then
+                    echo $(date +"%Y-%m-%d %H:%M:%S") "*** ERROR uploading image to Prusa Connect (HTTP $HTTP_STATUS). Will retry in ${LONG_DELAY_SECONDS}s..." >&2
+                    DELAY=$LONG_DELAY_SECONDS
+                else
+                    # Reset delay to the normal value
+                    DELAY=$DELAY_SECONDS
+                fi
             else
                 echo  $(date +"%Y-%m-%d %H:%M:%S") "*** ERROR capturing image.  Will retry in ${LONG_DELAY_SECONDS}s..." >&2 
                 # Set delay to the longer value
