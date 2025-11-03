@@ -30,48 +30,43 @@ echo "PRINTER_USERNAME: $PRINTER_USERNAME"
 
 while true; do
 
-    PRINTING=false
+    DELAY=$DELAY_SECONDS
 
     # Check to see if the printer is printing...
     PRINT_STATUS=$(curl -s --digest -u $PRINTER_USERNAME:$PRINTER_PASSWORD "$PRINTER_HOSTNAME/api/v1/status" | jq -r '.printer.state')
-    if [ $? -eq 0 ]; then
-        if [ "$PRINT_STATUS" == "PRINTING" ]; then
-            echo "The printer is currently printing."
-            PRINTING=true
-        else
-            echo "The printer is not printing."
-            PRINTING=false
-        fi
-    else
+    if [ $? -ne 0 ]; then
         echo "*** ERROR getting printer status.  Will retry in ${LONG_DELAY_SECONDS}s..."
         DELAY=$LONG_DELAY_SECONDS
-    fi
+    else 
+        # Upload a still image if we're printing.
+        if [ "$PRINT_STATUS" == "PRINTING" ]; then
+            # Image capture.
+            # -q = JPEG quality.  Keep it low for file size reasons, -t is timeout. 1 = 1 sec, so command runs quickly.
+            rpicam-jpeg -q 50 --width 800 --height 600 -t 1 -o /tmp/3d_still.jpg
+            # If no error, upload it.
+            if [ $? -eq 0 ]; then
+                # POST the image to the HTTP URL using curl
+                curl -k -X PUT "$HTTP_URL" \
+                    -H "accept: */*" \
+                    -H "content-type: image/jpg" \
+                    -H "fingerprint: $FINGERPRINT" \
+                    -H "token: $CAMERA_TOKEN" \
+                    --data-binary "@/tmp/3d_still.jpg" \
+                    --no-progress-meter \
+                    --compressed
 
-    # Upload a still image if we're printing.
-    if ["$PRINTING" == "true"]; then
-        # Image capture.
-        # -q = JPEG quality.  Keep it low for file size reasons, -t is timeout. 1 = 1 sec, so command runs quickly.
-        rpicam-jpeg -q 50 --width 800 --height 600 -t 1 -o /tmp/3d_still.jpg
-        # If no error, upload it.
-        if [ $? -eq 0 ]; then
-            # POST the image to the HTTP URL using curl
-            curl -k -X PUT "$HTTP_URL" \
-                -H "accept: */*" \
-                -H "content-type: image/jpg" \
-                -H "fingerprint: $FINGERPRINT" \
-                -H "token: $CAMERA_TOKEN" \
-                --data-binary "@/tmp/3d_still.jpg" \
-                --no-progress-meter \
-                --compressed
-
-            # Reset delay to the normal value
-            DELAY=$DELAY_SECONDS
-        else
-            echo "Error capturing image.  Will retry in ${LONG_DELAY_SECONDS}s..."
-            # Set delay to the longer value
-            DELAY=$LONG_DELAY_SECONDS
+                # Reset delay to the normal value
+                DELAY=$DELAY_SECONDS
+            else
+                echo "Error capturing image.  Will retry in ${LONG_DELAY_SECONDS}s..."
+                # Set delay to the longer value
+                DELAY=$LONG_DELAY_SECONDS
+            fi
+        else 
+            echo "Printer is not printing."
         fi
     fi
     
+    echo "Delay: $DELAY"
     sleep "$DELAY"
 done
