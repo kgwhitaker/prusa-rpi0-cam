@@ -48,7 +48,7 @@ while true; do
     fi
 
     # Upload a still image if we're printing.
-    if [$PRINTING=true]; then
+    if ["$PRINTING" == "true"]; then
         # Image capture.
         # -q = JPEG quality.  Keep it low for file size reasons, -t is timeout. 1 = 1 sec, so command runs quickly.
         rpicam-jpeg -q 50 --width 800 --height 600 -t 1 -o /tmp/3d_still.jpg
