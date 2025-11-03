@@ -35,6 +35,7 @@ This worked, but it was pulling 98% CPU on the RPi constantly.  Cutting down on 
 - set `etc/hostname` to `walleee-tv.home.arpa`
 - Added my favorite alias: `ll, la, ..`
 - Install `git`
+- Install `jq`
 
 ## Image Capture for Prusa Connect
 
