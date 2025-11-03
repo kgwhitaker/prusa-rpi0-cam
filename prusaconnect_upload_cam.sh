@@ -5,13 +5,13 @@
 : "${DELAY_SECONDS:=10}"
 : "${LONG_DELAY_SECONDS:=60}"
 
-# Read the secrets file and export variables
-if [ -f .secrets ]; then
-    set -a
-    source .secrets
-    set +a
-else
-    echo "Secrets file '.secrets' must exist and contain the following values."
+# Read the secrets file from command line parameter and export variables
+# Expect the secrets file path as the first positional argument.
+SECRETS_FILE="$1"
+
+if [ -z "$SECRETS_FILE" ]; then
+    echo "Usage: $0 /path/to/secrets_file"
+    echo "Secrets file must exist and contain the following values:"
     echo "FINGERPRINT=<a UUID unique to this camera instance>"
     echo "CAMERA_TOKEN=<token assigned by Prusa Connect>"
     echo "PRINTER_HOSTNAME=<hostname or IP of your printer>"
@@ -19,6 +19,15 @@ else
     echo "PRINTER_PASSWORD=<your PrusaLink password (again, not PrusaConnect)"
     exit 1
 fi
+
+if [ ! -f "$SECRETS_FILE" ]; then
+    echo "Error: Secrets file '$SECRETS_FILE' not found. Provide a valid path as the first argument."
+    exit 1
+fi
+
+set -a
+source "$SECRETS_FILE"
+set +a
 
 echo "Starting Image Capture for Prusa Connect\n"
 echo "HTTP_URL: $HTTP_URL"
@@ -45,7 +54,8 @@ while true; do
             rpicam-jpeg -q 50 --width 800 --height 600 -t 1 -o /tmp/3d_still.jpg
             # If no error, upload it.
             if [ $? -eq 0 ]; then
-                # POST the image to the HTTP URL using curl
+                # Upload the image to the HTTP URL using curl
+
                 curl -k -X PUT "$HTTP_URL" \
                     -H "accept: */*" \
                     -H "content-type: image/jpg" \
