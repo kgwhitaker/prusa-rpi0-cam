@@ -1,0 +1,16 @@
+#
+# Defines the service for prusa-cam.  Put in /etc/systemd/system
+#
+
+[Unit]
+Description=Prusa Cam Service - send stills to PrusaConnect
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/prusa-cam /etc/prusa-cam/.secrets
+Restart=on-failure
+StandardOutput=append:/var/log/prusa-cam.log
+StandardError=append:/var/log/prusa-cam.log
+
+[Install]
+WantedBy=multi-user.target

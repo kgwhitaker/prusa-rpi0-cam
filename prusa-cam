@@ -23,13 +23,15 @@ HTTP_URL=https://connect.prusa3d.com/c/snapshot
 DELAY_SECONDS=10
 
 # How long to wait if there is an error.
-LONG_DELAY_SECONDS=60
+ERROR_DELAY_SECONDS=60
 
 #
 # Read the secrets file from command line parameter and export variables
 # Expect the secrets file path as the first positional argument.
 #
 SECRETS_FILE="$1"
+
+# Make sure the secrets file is there.
 if [ -z "$SECRETS_FILE" ]; then
     echo "Usage: $0 /path/to/secrets_file"
     echo 
@@ -48,6 +50,7 @@ if [ ! -f "$SECRETS_FILE" ]; then
     exit 1
 fi
 
+# Read the secrets file configuration.
 set -a
 source "$SECRETS_FILE"
 set +a
@@ -59,11 +62,14 @@ log "Starting Image Capture for Prusa Connect"
 echo 
 echo -e "\tHTTP_URL: $HTTP_URL"
 echo -e "\tDELAY_SECONDS: $DELAY_SECONDS"
-echo -e "\tLONG_DELAY_SECONDS: $LONG_DELAY_SECONDS"
+echo -e "\tERROR_DELAY_SECONDS: $ERROR_DELAY_SECONDS"
 echo -e "\tFINGERPRINT: $FINGERPRINT"
 echo -e "\tPRINTER_HOSTNAME: $PRINTER_HOSTNAME"
 echo -e "\tPRINTER_USERNAME: $PRINTER_USERNAME"
 
+#
+# Starts upload of a still image if we are printing.  Runs until the script is killed.
+#
 while true; do
 
     DELAY=$DELAY_SECONDS
@@ -71,8 +77,8 @@ while true; do
     # Check to see if the printer is printing...
     PRINT_STATUS=$(curl -s --digest -u $PRINTER_USERNAME:$PRINTER_PASSWORD "$PRINTER_HOSTNAME/api/v1/status" | jq -r '.printer.state')
     if [ $? -ne 0 ]; then
-        log_err "*** ERROR getting printer status.  Will retry in ${LONG_DELAY_SECONDS}s..."
-        DELAY=$LONG_DELAY_SECONDS
+        log_err "*** ERROR getting printer status.  Will retry in ${ERROR_DELAY_SECONDS}s..."
+        DELAY=$ERROR_DELAY_SECONDS
     else 
         # Upload a still image if we're printing.
         if [ "$PRINT_STATUS" == "PRINTING" ]; then
@@ -95,16 +101,16 @@ while true; do
                     -o /dev/null)
 
                 if [ $? -ne 0 ] || [ $HTTP_STATUS -lt 200 ] || [ $HTTP_STATUS -ge 300 ]; then
-                    log_err "*** ERROR uploading image to Prusa Connect (HTTP $HTTP_STATUS). Will retry in ${LONG_DELAY_SECONDS}s..."
-                    DELAY=$LONG_DELAY_SECONDS
+                    log_err "*** ERROR uploading image to Prusa Connect (HTTP $HTTP_STATUS). Will retry in ${ERROR_DELAY_SECONDS}s..."
+                    DELAY=$ERROR_DELAY_SECONDS
                 else
                     # Reset delay to the normal value
                     DELAY=$DELAY_SECONDS
                 fi
             else
-                log_err "*** ERROR capturing image.  Will retry in ${LONG_DELAY_SECONDS}s..."
+                log_err "*** ERROR capturing image.  Will retry in ${ERROR_DELAY_SECONDS}s..."
                 # Set delay to the longer value
-                DELAY=$LONG_DELAY_SECONDS
+                DELAY=$ERROR_DELAY_SECONDS
             fi
         else 
             log "Printer is not printing."
