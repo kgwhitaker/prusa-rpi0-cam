@@ -5,7 +5,8 @@ Tracks scripts and documentation for configuring a Raspberry Pi Zero W to use wi
 ## Discarded Solutions
 
 ### Streaming Video using `ffmpeg` and others; 
-    - Could not get it to work with my RPi and camera, maybe my hardware is too old.  Level of effort exceeded my patience.
+- Could not get it to work with my RPi and camera, maybe my hardware is too old.  Level of effort exceeded my patience.
+ 
 ### Web UI Setup
 - Using the project:  https://github.com/monkeymademe/CamUI
     - Install dependencies:
@@ -33,7 +34,7 @@ Decided to just use PrusaConnect and static images for now.
 - Update to latest packages (apt update/upgrade)
 - Install `vim` `sudo apt install vim`
 - set `etc/hostname` to `walleee-tv.home.arpa`
-- Added my favorite alias: `ll, la, ..`
+- Added my favorite aliases: `ll, la, ..`
 - Install `git`
 - Install `jq` <-- Needed for the script to check status of the printer.
 
@@ -50,7 +51,7 @@ Decided to just use PrusaConnect and static images for now.
 
 ### Configuration
 
-The starting point for this configuration is that you have a Raspberry Pi Zero W running and you can log on to it.  Further, your camera is connected and when you run `rpicam-jpeg -o test.jpg' a jpeg is created from your camera.  You have `git` installed or other means of getting
+The starting point for this configuration is that you have a Raspberry Pi Zero W running and you can log on to it.  Further, your camera is connected and when you run `rpicam-jpeg -o test.jpg` a jpeg is created from your camera.  You have `git` installed or other means of getting
 the files to your Raspberry Pi Zero.
 
 #### Install Dependencies
@@ -108,13 +109,13 @@ Still capture image received
 
 #### Configure `prusa-cam` as a Service
 
-- Copy the prusa-cam.service file to `/etc/sytemd/system`
+- Copy the `prusa-cam.service` file to `/etc/sytemd/system`
     - `sudo cp prusa-cam.service /etc/systemd/system`
 - Reload *systemd*: `sudo systemctl daemon-reload`
 - Start the service: `sudo systemctl restart prusa-cam.service`
 - Verify it is running OK:  `sudo systemctl status prusa-cam.service`. Should look something like:
 ```
- $ sudo systemctl status prusa-cam.service
+$ sudo systemctl status prusa-cam.service
 ● prusa-cam.service - Prusa Cam Service - send stills to PrusaConnect
      Loaded: loaded (/etc/systemd/system/prusa-cam.service; enabled; preset: enabled)
      Active: active (running) since Mon 2025-11-03 17:39:26 PST; 4s ago
@@ -147,36 +148,5 @@ This sets up Log Rotate so that it will keep the prusa-cam.log file less than 1M
     - `sudo logrotate -d /etc/logrotate.conf`
 - Do a manual log rotation
     - `sudo logrotate -f /etc/logrotate.conf`
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
