@@ -59,6 +59,7 @@ the files to your Raspberry Pi Zero.
 
 #### Install the `prusa-cam` Script
 - Copy `prusa-cam` from this repo to your `/usr/bin` directory as `sudo` 
+    - `sudo cp prusa-cam /usr/bin`
     - Make sure that it is executable: `sudo chmod +x /usr/bin/prusa-cam`
 - Create your secrets file (see `example_secrets` in this repo.)
     - Create a directory `/etc/prusa-cam` Put the secrets file in `/etc/prusa-cam` and name it `.secrets`.
@@ -109,6 +110,40 @@ Still capture image received
 
 - Copy the prusa-cam.service file to `/etc/sytemd/system`
     - `sudo cp prusa-cam.service /etc/systemd/system`
+- Reload *systemd*: `sudo systemctl daemon-reload`
+- Start the service: `sudo systemctl restart prusa-cam.service`
+- Verify it is running OK:  `sudo systemctl status prusa-cam.service`. Should look something like:
+```
+ $ sudo systemctl status prusa-cam.service
+● prusa-cam.service - Prusa Cam Service - send stills to PrusaConnect
+     Loaded: loaded (/etc/systemd/system/prusa-cam.service; enabled; preset: enabled)
+     Active: active (running) since Mon 2025-11-03 17:39:26 PST; 4s ago
+ Invocation: 9dc77428c14d4e62a699a86802648873
+   Main PID: 9596 (prusa-cam)
+      Tasks: 2 (limit: 386)
+        CPU: 1.642s
+     CGroup: /system.slice/prusa-cam.service
+             ├─9596 /bin/bash /usr/bin/prusa-cam /etc/prusa-cam/.secrets
+             └─9615 sleep 10
+
+Nov 03 17:39:26 walleee-tv.home.arpa systemd[1]: Started prusa-cam.service - Prusa Cam Service - send stills to PrusaConnect.
+```
+- Enable the service so that it runs on bootup.
+    - `sudo systemctl enable prusa-cam.service`
+
+
+#### `prusa-cam` Logs
+
+- Standard Out and Standard Error are put into /var/log/prusa-cam.log
+- you can tail that log to see what is happening
+    - `tail -f /var/log/prusa-cam.log` 
+
+
+
+
+
+
+
 
 
 
