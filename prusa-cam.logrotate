@@ -1,0 +1,7 @@
+/var/log/prusa-cam.log {
+    size 1M                  # Rotate the log file when it reaches 1 MB
+    missingok                # Do not generate an error if the log file is missing
+    notifempty               # Do not rotate the log if it is empty
+    create 0640 root root    # Create a new log file with permissions for root user and group
+    rotate 0                 # Keep 0 old logs; delete rotated logs immediately
+}

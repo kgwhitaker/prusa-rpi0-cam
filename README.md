@@ -131,12 +131,25 @@ Nov 03 17:39:26 walleee-tv.home.arpa systemd[1]: Started prusa-cam.service - Pru
 - Enable the service so that it runs on bootup.
     - `sudo systemctl enable prusa-cam.service`
 
-
 #### `prusa-cam` Logs
 
 - Standard Out and Standard Error are put into /var/log/prusa-cam.log
 - you can tail that log to see what is happening
     - `tail -f /var/log/prusa-cam.log` 
+
+#### Setup Log Rotate
+
+This sets up Log Rotate so that it will keep the prusa-cam.log file less than 1M
+
+- Copy `prusa-cam.logrotate` to `/etc/logrotate.d` renaming the file to `prusa-cam`
+    - `sudo cp prusa-cam.logrotate /etc/logrotate.d/prusa-cam`
+- Do a dry run of the configuration to verify 
+    - `sudo logrotate -d /etc/logrotate.conf`
+- Do a manual log rotation
+    - `sudo logrotate -f /etc/logrotate.conf`
+
+
+
 
 
 
