@@ -25,17 +25,43 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
+        #timestamp {
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
     <h1>Walleee TV</h1>
-    <img src="/3d_still.jpg" alt="3D Printer Camera Feed" id="camera-feed">
+    <img src="3d_still.jpg" alt="3D Printer Camera Feed" id="camera-feed">
+    <div id="timestamp"></div>
     <script>
-        // Refresh the image every 10 seconds
-        setInterval(function() {
+        async function getFileTimestamp() {
+            try {
+                const response = await fetch('3d_still.jpg', { method: 'HEAD' });
+                const lastModified = response.headers.get('Last-Modified');
+                return new Date(lastModified).toLocaleString();
+            } catch (error) {
+                console.error('Error fetching timestamp:', error);
+                return 'Unknown';
+            }
+        }
+
+        async function updateImage() {
             const img = document.getElementById('camera-feed');
-            img.src = '/3d_still.jpg?' + new Date().getTime();
-        }, 10000);
+            const timestamp = document.getElementById('timestamp');
+            
+            img.src = '3d_still.jpg?' + new Date().getTime();
+            const fileTime = await getFileTimestamp();
+            timestamp.textContent = 'Image captured: ' + fileTime;
+        }
+        
+        // Initial update
+        updateImage();
+        
+        // Refresh every 10 seconds
+        setInterval(updateImage, 10000);
     </script>
 </body>
 </html>
