@@ -1,7 +1,0 @@
-/var/log/prusa-cam.log {
-  rotate 2
-  size 1M
-  create 644 root adm
-  compress
-  missingok
-}
