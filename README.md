@@ -134,6 +134,6 @@ Nov 03 17:39:26 walleee-tv.home.arpa systemd[1]: Started prusa-cam.service - Pru
 
 #### `prusa-cam` Logs
 
-- Standard Out and Standard Error are put into the sytemd journal.
+- Standard Out and Standard Error are put into the `sytemd` journal.
 - You can view the logs by issuing the command `journalctl -u prusa-cam.service`
 - You can tail (follow) the log output by issuing the command `journalctl -f -u prusa-cam.service`.
