@@ -9,8 +9,8 @@ After=network.target
 [Service]
 ExecStart=/usr/bin/prusa-cam /etc/prusa-cam/.secrets
 Restart=on-failure
-StandardOutput=append:/var/log/prusa-cam.log
-StandardError=append:/var/log/prusa-cam.log
+StandardOutput=journal
+StandardError=inherit
 
 [Install]
 WantedBy=multi-user.target
