@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walleee TV</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Walleee TV</h1>
+    <img src="/3d_still.jpg" alt="3D Printer Camera Feed" id="camera-feed">
+    <script>
+        // Refresh the image every 10 seconds
+        setInterval(function() {
+            const img = document.getElementById('camera-feed');
+            img.src = '/3d_still.jpg?' + new Date().getTime();
+        }, 10000);
+    </script>
+</body>
+</html>

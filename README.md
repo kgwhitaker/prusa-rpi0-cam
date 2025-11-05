@@ -137,3 +137,17 @@ Nov 03 17:39:26 walleee-tv.home.arpa systemd[1]: Started prusa-cam.service - Pru
 - Standard Out and Standard Error are put into the `sytemd` journal.
 - You can view the logs by issuing the command `journalctl -u prusa-cam.service`
 - You can tail (follow) the log output by issuing the command `journalctl -f -u prusa-cam.service`.
+
+#### Setup a Static Web Page
+
+In order to see the image locally without going out to Prusa Connect, this creates a simple web page that you can view directly.
+
+- Install [lighttpd](https://www.lighttpd.net) 
+    - `sudo apt install lighttpd`
+    - `service lighttpd force-reload`
+
+- Confirm that the server is running by navingating to `http://<your RPi hostname here>`
+    - You should see the place holder page for *Lighttp*.  
+- 
+
+
