@@ -16,7 +16,7 @@ So, this setup:
 
 - I used this Gist using as a general guide for setting up this configuration:  https://gist.github.com/cannikin/4954d050b72ff61ef0719c42922464e5 
     - I found it in the details for this model:  https://www.printables.com/model/826864-raspicam-for-prusaconnect 
-    - Thanks to [@Chris_Schumi](https://www.printables.com/@Chris_Schumi) for posting these to get me started.
+    - Thanks to [@Chris_Schumi](https://www.printables.com/@Chris_Schumi) and to [@cannikin](https://gist.github.com/cannikin) for posting these.
 
 - The docs for the tools provided by Raspberry Pi can be found here: https://www.raspberrypi.com/documentation/computers/camera_software.html#rpicam-apps
     - Installed by default when setting up RPi lite and using `rpicam-still --output test.jpg` worked the first time to create an image capture on my setup.
