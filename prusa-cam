@@ -25,6 +25,9 @@ DELAY_SECONDS=10
 # How long to wait if there is an error.
 ERROR_DELAY_SECONDS=60
 
+# Fully qualified name of the still file being captured.
+IMAGE_FILE_NAME=/var/www/html/3d_still.jpg
+
 #
 # Read the secrets file from command line parameter and export variables
 # Expect the secrets file path as the first positional argument.
@@ -84,7 +87,7 @@ while true; do
         if [ "$PRINT_STATUS" == "PRINTING" ]; then
             # Image capture.
             # -q = JPEG quality.  Keep it low for file size reasons, -t is timeout. 1 = 1 sec, so command runs quickly.
-            rpicam-jpeg -q 50 --width 800 --height 600 -t 1 -o /tmp/3d_still.jpg
+            rpicam-jpeg -q 50 --width 800 --height 600 -t 1 -o $IMAGE_FILE_NAME
             # If no error, upload it.
             if [ $? -eq 0 ]; then
 
@@ -94,7 +97,7 @@ while true; do
                     -H "content-type: image/jpg" \
                     -H "fingerprint: $FINGERPRINT" \
                     -H "token: $CAMERA_TOKEN" \
-                    --data-binary "@/tmp/3d_still.jpg" \
+                    --data-binary "@$IMAGE_FILE_NAME" \
                     --no-progress-meter \
                     --compressed \
                     -w '%{http_code}\n' \
