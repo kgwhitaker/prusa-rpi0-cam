@@ -1,0 +1,42 @@
+#!/bin/bash
+
+#
+# Read the secrets file from command line parameter and export variables
+# Expect the secrets file path as the first positional argument.
+#
+SECRETS_FILE="$1"
+
+# Make sure the secrets file is there.
+if [ -z "$SECRETS_FILE" ]; then
+    echo "Usage: $0 /path/to/secrets_file"
+    echo 
+    echo "Secrets file must exist and contain the following values:"
+    echo 
+    echo -e "\tFINGERPRINT=<a UUID unique to this camera instance>"
+    echo -e "\tCAMERA_TOKEN=<token assigned by Prusa Connect>"
+    echo -e "\tPRINTER_HOSTNAME=<hostname or IP of your printer>"
+    echo -e "\tPRINTER_USERNAME=<your PrusaLink user name (NOT your PrusaConnect user e.g. 'maker')"
+    echo -e "\tPRINTER_PASSWORD=<your PrusaLink password (again, NOT PrusaConnect)"
+    exit 1
+fi
+
+if [ ! -f "$SECRETS_FILE" ]; then
+    log_err "***ERROR: Secrets file '$SECRETS_FILE' not found. Provide a valid path as the first argument."
+    exit 1
+fi
+
+# Read the secrets file configuration.
+set -a
+source "$SECRETS_FILE"
+set +a
+
+#
+# Show the user what we found.
+#
+log "Starting Image Capture for Prusa Connect"
+echo 
+echo -e "\tPRINTER_HOSTNAME: $PRINTER_HOSTNAME"
+echo -e "\tPRINTER_USERNAME: $PRINTER_USERNAME"
+
+
+curl -s --digest -u $PRINTER_USERNAME:$PRINTER_PASSWORD "$PRINTER_HOSTNAME/api/v1/status
