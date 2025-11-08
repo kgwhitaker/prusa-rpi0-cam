@@ -1,18 +1,9 @@
 #!/bin/bash
 
-#### Helper functions ####
-
-#
-# log message with date/time
-#
-log() {
-    printf '%s %s\n' "$(date +"%Y-%m-%d %H:%M:%S")" "$*"
-}
-
-# log error with date/time to stderr
-log_err() {
-    printf '%s %s\n' "$(date +"%Y-%m-%d %H:%M:%S")" "$*" >&2
-}
+# Locate script directory and source shared helpers
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/util.sh"
 
 #### Set default values for environment variables ####
 

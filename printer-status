@@ -1,6 +1,16 @@
 #!/bin/bash
 
 #
+# Queries the printer for its current status saving the output to printer_status.json.
+#
+
+
+# Locate script directory and source shared helpers
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/util.sh"
+
+#
 # Read the secrets file from command line parameter and export variables
 # Expect the secrets file path as the first positional argument.
 #
@@ -39,4 +49,7 @@ echo -e "\tPRINTER_HOSTNAME: $PRINTER_HOSTNAME"
 echo -e "\tPRINTER_USERNAME: $PRINTER_USERNAME"
 
 
-curl -s --digest -u $PRINTER_USERNAME:$PRINTER_PASSWORD "$PRINTER_HOSTNAME/api/v1/status
+curl -s --digest -u $PRINTER_USERNAME:$PRINTER_PASSWORD "$PRINTER_HOSTNAME/api/v1/status" > printer_status.json
+
+log "Printer status saved to printer_status.json"
+
