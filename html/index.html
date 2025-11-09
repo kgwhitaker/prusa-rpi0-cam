@@ -138,6 +138,9 @@
 
         updatedAtEl.textContent = new Date().toLocaleTimeString();
 
+        // Refresh image with cache-busting timestamp
+        cameraImage.src = '3d_still.jpg?ts=' + Date.now();
+
       } catch (err) {
         progressEl.textContent = 'Error';
         timeRemainingEl.textContent = 'Error';
