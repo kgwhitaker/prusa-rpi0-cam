@@ -1,67 +1,155 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walleee TV</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
-        }
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-        img {
-            max-width: 100%;
-            height: auto;
-            border: 2px solid #333;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        #timestamp {
-            margin-top: 10px;
-            color: #666;
-            font-size: 0.9em;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Walleee TV</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #000; /* black background */
+      color: #fff;            /* default text color for contrast */
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      border: 2px solid #444;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    #timestamp {
+      margin-top: 10px;
+      color: #aaa;
+      font-size: 0.9em;
+    }
+    .container {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+    /* Image area increased by 50% */
+    .camera {
+      max-width: 720px;    /* was 480px */
+      width: 72%;          /* was 48% */
+      height: auto;
+      border: 1px solid #555;
+      background: #0b0b0b;
+      display: block;
+    }
+    /* Adjust status column to fill remaining space */
+    .status {
+      width: 28%;          /* was 48% */
+      min-width: 200px;
+    }
+    .stat-row {
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+    }
+    .label {
+      color: #bbb;
+      display: inline-block;
+      width: 160px;
+    }
+    .value {
+      font-weight: 600;
+      color: #fff;
+    }
+    .muted {
+      color: #aaa;
+      font-size: 0.95rem;
+    }
+  </style>
 </head>
 <body>
-    <h1>Walleee TV</h1>
-    <img src="3d_still.jpg" alt="3D Printer Camera Feed" id="camera-feed">
-    <div id="timestamp"></div>
-    <script>
-        async function getFileTimestamp() {
-            try {
-                const response = await fetch('3d_still.jpg', { method: 'HEAD' });
-                const lastModified = response.headers.get('Last-Modified');
-                return new Date(lastModified).toLocaleString();
-            } catch (error) {
-                console.error('Error fetching timestamp:', error);
-                return 'Unknown';
-            }
-        }
+  <h1>Walleee TV</h1>
 
-        async function updateImage() {
-            const img = document.getElementById('camera-feed');
-            const timestamp = document.getElementById('timestamp');
-            
-            img.src = '3d_still.jpg?' + new Date().getTime();
-            const fileTime = await getFileTimestamp();
-            timestamp.textContent = 'Image captured: ' + fileTime;
-        }
-        
-        // Initial update
-        updateImage();
-        
-        // Refresh every 10 seconds
-        setInterval(updateImage, 10000);
-    </script>
+  <div class="container">
+    
+    <!-- Left: camera image -->
+    <img id="cameraImage" class="camera" src="3d_still.jpg" alt="Camera image" />
+
+    <!-- Right: job stats -->
+    <div class="status">
+      <div class="stat-row">
+        <span class="label">Progress:</span>
+        <span id="progress" class="value muted">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="label">Time Printing:</span>
+        <span id="time_printing" class="value muted">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="label">Time Remaining:</span>
+        <span id="time_remaining" class="value muted">—</span>
+      </div>
+      <div class="muted">Last Updated: <span id="updated_at">—</span></div>
+    </div>
+  </div>
+
+  <script>
+    const STATUS_PATH = './printer_status.json';
+    const progressEl = document.getElementById('progress');
+    const timeRemainingEl = document.getElementById('time_remaining');
+    const timePrintingEl = document.getElementById('time_printing');
+    const updatedAtEl = document.getElementById('updated_at');
+    const cameraImage = document.getElementById('cameraImage');
+
+    // Helper: seconds -> integer minutes
+    function secondsToMinutesLabel(sec) {
+      if (sec === null || sec === undefined || isNaN(sec)) return '—';
+      const mins = Math.round(Number(sec) / 60);
+      return `${mins} min`;
+    }
+
+    // Helper: seconds -> "hh:mm" (zero-padded hours and minutes)
+    function secondsToHHMM(sec) {
+      if (sec === null || sec === undefined || isNaN(sec)) return '—';
+      const total = Math.max(0, Math.round(Number(sec)));
+      const hours = Math.floor(total / 3600);
+      const minutes = Math.floor((total % 3600) / 60);
+      const hh = String(hours).padStart(2, '0');
+      const mm = String(minutes).padStart(2, '0');
+      return `${hh}:${mm}`;
+    }
+
+    async function loadStatus() {
+      try {
+        const resp = await fetch(STATUS_PATH, { cache: "no-store" });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+
+        const job = data.job || {};
+
+        const progress = (job.progress !== undefined && job.progress !== null) ? Number(job.progress) : NaN;
+        progressEl.textContent = isFinite(progress) ? `${progress.toFixed(2)}%` : '—';
+
+        // Show time remaining as hh:mm
+        timeRemainingEl.textContent = secondsToHHMM(job.time_remaining);
+        timePrintingEl.textContent = secondsToHHMM(job.time_printing);
+
+        updatedAtEl.textContent = new Date().toLocaleTimeString();
+
+      } catch (err) {
+        progressEl.textContent = 'Error';
+        timeRemainingEl.textContent = 'Error';
+        timePrintingEl.textContent = 'Error';
+        updatedAtEl.textContent = '—';
+        console.error('Failed to load printer status:', err);
+      }
+    }
+
+    // Initial load and periodic refresh
+    loadStatus();
+    setInterval(loadStatus, 5000);
+  </script>
 </body>
 </html>
