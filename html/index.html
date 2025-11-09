@@ -36,10 +36,9 @@
       align-items: flex-start;
       gap: 20px;
     }
-    /* Image area increased by 50% */
     .camera {
-      max-width: 720px;    /* was 480px */
-      width: 72%;          /* was 48% */
+      max-width: 720px;
+      width: 60%;           /* reduced to give more room to the status column */
       height: auto;
       border: 1px solid #555;
       background: #0b0b0b;
@@ -47,8 +46,8 @@
     }
     /* Adjust status column to fill remaining space */
     .status {
-      width: 28%;          /* was 48% */
-      min-width: 200px;
+      width: 40%;          /* increased to provide more space for the end time */
+      min-width: 320px;    /* larger minimum to avoid wrapping on smaller viewports */
     }
     .stat-row {
       margin-bottom: 12px;
@@ -91,6 +90,10 @@
         <span class="label">Time Remaining:</span>
         <span id="time_remaining" class="value muted">—</span>
       </div>
+      <div class="stat-row">
+        <span class="label">Estimated Completion:</span>
+        <span id="estimated_end" class="value muted">—</span>
+      </div>
       <div class="muted">Last Updated: <span id="updated_at">—</span></div>
     </div>
   </div>
@@ -101,6 +104,7 @@
     const timeRemainingEl = document.getElementById('time_remaining');
     const timePrintingEl = document.getElementById('time_printing');
     const updatedAtEl = document.getElementById('updated_at');
+    const estimatedEndEl = document.getElementById('estimated_end');
     const cameraImage = document.getElementById('cameraImage');
 
     // Helper: seconds -> integer minutes
@@ -121,6 +125,20 @@
       return `${hh}:${mm}`;
     }
 
+    // Helper: seconds -> "Today HH:MM" or "MM/DD/YYYY HH:MM"
+    function formatEstimatedEnd(sec) {
+      if (sec === null || sec === undefined || isNaN(sec)) return '—';
+      const total = Math.max(0, Math.round(Number(sec)));
+      const end = new Date(Date.now() + total * 1000);
+      const today = new Date();
+      const timeStr = end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (end.toDateString() === today.toDateString()) {
+        return `Today at ${timeStr}`;
+      }
+      const dateStr = end.toLocaleDateString();
+      return `${dateStr} at ${timeStr}`;
+    }
+
     async function loadStatus() {
       try {
         const resp = await fetch(STATUS_PATH, { cache: "no-store" });
@@ -134,6 +152,8 @@
 
         // Show time remaining as hh:mm
         timeRemainingEl.textContent = secondsToHHMM(job.time_remaining);
+        // Show estimated end time based on time_remaining
+        estimatedEndEl.textContent = formatEstimatedEnd(job.time_remaining);
         timePrintingEl.textContent = secondsToHHMM(job.time_printing);
 
         updatedAtEl.textContent = new Date().toLocaleTimeString();
@@ -144,6 +164,7 @@
       } catch (err) {
         progressEl.textContent = 'Error';
         timeRemainingEl.textContent = 'Error';
+        estimatedEndEl.textContent = 'Error';
         timePrintingEl.textContent = 'Error';
         updatedAtEl.textContent = '—';
         console.error('Failed to load printer status:', err);
