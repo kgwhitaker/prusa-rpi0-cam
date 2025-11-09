@@ -134,7 +134,7 @@
 
         // Show time remaining as hh:mm
         timeRemainingEl.textContent = secondsToHHMM(job.time_remaining);
-        timePrintingEl.textContent = secondsToMinutesLabel(job.time_printing);
+        timePrintingEl.textContent = secondsToHHMM(job.time_printing);
 
         updatedAtEl.textContent = new Date().toLocaleTimeString();
 
